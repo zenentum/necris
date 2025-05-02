@@ -153,7 +153,7 @@ For security reasons, it's highly recommended to change the default password:
 
 Don't want to set up your own Necris NAS? We offer pre-assembled, ready-to-use devices!
 
-![Pre-assembled Necris NAS Device](./static/product_image.png?raw=true "Pre-assembled Necris NAS Device")
+![Pre-assembled Necris NAS Device](./static/product_image.png "Pre-assembled Necris NAS Device")
 
 ### Purchase a Ready-to-Use Device
 
