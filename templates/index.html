@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Necris File Server</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-actions a {
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .change-password-link {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .logout-link {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .change-password-link:hover {
+            background-color: #218838;
+        }
+
+        .logout-link:hover {
+            background-color: #c82333;
+        }
+
+        .breadcrumb {
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .breadcrumb a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .instructions {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .instructions-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .instructions-header h2 {
+            margin: 0;
+        }
+
+        .toggle-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.2s;
+        }
+
+        .platform-instructions {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 4px;
+        }
+
+        .warning {
+            color: #856404;
+            background-color: #fff3cd;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .upload-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .file-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .file-list th,
+        .file-list td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .folder {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .file {
+            color: #212529;
+            text-decoration: none;
+        }
+
+        .action-button {
+            padding: 0.375rem 0.75rem;
+            margin-right: 0.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+            background-color: #007bff;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+        }
+
+        .action-button:hover {
+            opacity: 0.9;
+        }
+
+        .flash-messages {
+            margin-bottom: 1rem;
+        }
+
+        .flash-message {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            color: white;
+            background-color: #28a745;
+        }
+
+        .flash-message.error {
+            background-color: #dc3545;
+        }
+
+        .upload-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .upload-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .upload-button:hover {
+            background-color: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .upload-form {
+                flex-direction: column;
+            }
+        }
+
+        .disk-usage-container {
+            background: #fff;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .disk-usage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .disk-usage-header h2 {
+            margin: 0;
+        }
+
+        .drive-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .drive-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .drive-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .drive-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background: #eee;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #4CAF50;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .progress-bar.warning {
+            background: #FFA500;
+        }
+
+        .progress-bar.critical {
+            background: #FF4444;
+        }
+
+        .drive-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            min-width: 300px;
+        }
+
+        .threshold-inputs {
+            margin: 1.5rem 0;
+        }
+
+        .threshold-input {
+            margin-bottom: 1rem;
+        }
+
+        .threshold-input label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .threshold-input input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .settings-button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .settings-button:hover {
+            background: #f5f5f5;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: right;
+            gap: 1rem;
+        }
+
+        .refresh-button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .refresh-button:hover {
+            background: #f5f5f5;
+        }
+
+        .refresh-button:disabled {
+            background-color: #718096;
+            cursor: not-allowed;
+        }
+
+        .flash-messages {
+            margin: 1rem 0;
+        }
+
+        .flash-message {
+            padding: 1rem;
+            border-radius: 0.375rem;
+            background-color: #48bb78;
+            color: white;
+        }
+
+        .flash-message.error {
+            background-color: #f56565;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Necris File Server</h1>
+            <div class="user-actions">
+                <a href="{{ url_for('change_password') }}" class="change-password-link">Change Password</a>
+                <a href="{{ url_for('logout') }}" class="logout-link">Log Out</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message {% if category == 'error' %}error{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="breadcrumb">
+            <a href="{{ url_for('index') }}">Home</a>
+            {% if current_path %}
+                {% set path_parts = current_path.split('/') %}
+                {% set accumulated_path = '' %}
+                {% for part in path_parts if part %}
+                    {% set accumulated_path = accumulated_path + '/' + part %}
+                    / <a href="{{ url_for('index', path=accumulated_path.lstrip('/')) }}">{{ part }}</a>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        {% if not current_path %}
+        <div class="instructions">
+            <div class="instructions-header" onclick="toggleInstructions()">
+                <h2>Access USB Drives Over Network</h2>
+                <svg class="toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="instructions-content" style="display: none;">
+                {% set drives = namespace(names=[]) %}
+                {% for file in files %}
+                    {% if file.is_dir %}
+                        {% set _ = drives.names.append("USB_" + file.name) %}
+                    {% endif %}
+                {% endfor %}
+
+                <div class="platform-instructions">
+                    <h3>Windows Users</h3>
+                    <ol>
+                        <li>Open File Explorer</li>
+                        <li>In the address bar, type: <code>\\necris.local</code></li>
+                        <li>Press Enter</li>
+                        <li>When prompted, enter:
+                            <ul>
+                                <li>Username: necris-client</li>
+                                <li>Password: [your password]</li>
+                            </ul>
+                        </li>
+                        <li>You will see these shared drives:
+                            <ul>
+                                {% for drive in drives.names %}
+                                <li><code>{{ drive }}</code></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="platform-instructions">
+                    <h3>Mac Users</h3>
+                    <ol>
+                        <li>Click on Finder</li>
+                        <li>Press ⌘K or select Go → Connect to Server</li>
+                        <li>Type: <code>smb://necris.local</code></li>
+                        <li>Click Connect</li>
+                        <li>When prompted, enter:
+                            <ul>
+                                <li>Username: necris-client</li>
+                                <li>Password: [your password]</li>
+                            </ul>
+                        </li>
+                        <li>Select the drive you want to access:
+                            <ul>
+                                {% for drive in drives.names %}
+                                <li><code>{{ drive }}</code></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="platform-instructions">
+                    <h3>iOS Users</h3>
+                    <ol>
+                        <li>Open the default Files App</li>
+                        <li>Click on three dots on the top right corner</li>
+                        <li>Type: <code>smb://necris.local</code></li>
+                        <li>Click Connect</li>
+                        <li>When prompted, connect as a registered user:</li>
+                            <ul>
+                                <li>Username: necris-client</li>
+                                <li>Password: [your password]</li>
+                            </ul>
+                        </li>
+                        <li>Select the drive you want to access:
+                            <ul>
+                                {% for drive in drives.names %}
+                                <li><code>{{ drive }}</code></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                {% if not drives.names %}
+                <div class="warning">
+                    No USB drives are currently connected. Connect a USB drive to see it shared here.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="disk-usage-container">
+            <div class="disk-usage-header">
+                <h2>Drive Usage</h2>
+                <div class="header-actions">
+                    <button onclick="refreshServices()" class="refresh-button">
+                        🔄 Refresh Services
+                    </button>
+                    <button onclick="openThresholdSettings()" class="settings-button">
+                        ⚙️ Settings
+                    </button>
+                </div>
+            </div>
+            <div id="drives-container">
+                <!-- Drives will be inserted here dynamically -->
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <h3>Upload Files</h3>
+            <form class="upload-form" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" required>
+                <input type="hidden" name="current_path" value="{{ current_path }}">
+                <button type="submit" class="upload-button">Upload</button>
+            </form>
+        </div>
+
+        <table class="file-list">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if current_path %}
+                <tr>
+                    <td colspan="3">
+                        <a href="{{ url_for('index', path=parent_path) }}" class="folder">📁 ../ (Parent Directory)</a>
+                    </td>
+                </tr>
+                {% endif %}
+                
+                {% for file in files %}
+                <tr>
+                    <td>
+                        {% if file.is_dir %}
+                            <a href="{{ url_for('index', path=(current_path + '/' + file.name).lstrip('/')) }}" class="folder">
+                                📁 {{ file.name }}/
+                            </a>
+                        {% else %}
+                            <span class="file">📄 {{ file.name }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ file.size }}</td>
+                    <td>
+                        {% if not file.is_dir %}
+                            <a href="{{ url_for('download_file', filepath=(current_path + '/' + file.name).lstrip('/')) }}" class="action-button">
+                                Download
+                            </a>
+                            <a href="{{ url_for('delete_file', filepath=(current_path + '/' + file.name).lstrip('/')) }}" 
+                               class="action-button delete-button"
+                               onclick="return confirm('Are you sure you want to delete this file?')">
+                                Delete
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="threshold-modal" class="modal">
+        <div class="modal-content">
+            <h3>Drive Usage Thresholds</h3>
+            <div class="threshold-inputs">
+                <div class="threshold-input">
+                    <label for="warning-threshold">Warning Threshold (%)</label>
+                    <input type="number" id="warning-threshold" min="0" max="100" />
+                </div>
+                <div class="threshold-input">
+                    <label for="critical-threshold">Critical Threshold (%)</label>
+                    <input type="number" id="critical-threshold" min="0" max="100" />
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeThresholdSettings()">Cancel</button>
+                <button onclick="saveThresholds()" class="primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleInstructions() {
+            const content = document.querySelector('.instructions-content');
+            const icon = document.querySelector('.toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(0)';
+            }
+        }
+
+        function formatBytes(bytes) {
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            let size = bytes;
+            let unitIndex = 0;
+            
+            while (size >= 1024 && unitIndex < units.length - 1) {
+                size /= 1024;
+                unitIndex++;
+            }
+            
+            return `${size.toFixed(1)} ${units[unitIndex]}`;
+        }
+
+        function createDriveElement(drive) {
+            return `
+                <div class="drive-item">
+                    <div class="drive-header">
+                        <span class="drive-name">${drive.name}</span>
+                        <span class="drive-status ${drive.status}">${drive.status}</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar ${drive.status}" 
+                            style="width: ${drive.percent}%"></div>
+                    </div>
+                    <div class="drive-stats">
+                        <span>${drive.percent.toFixed(1)}% used</span>
+                        <span>${formatBytes(drive.free)} free of ${formatBytes(drive.total)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateDiskUsage() {
+            fetch('/api/disk-usage')
+                .then(response => response.json())
+                .then(data => {
+                    const drivesContainer = document.getElementById('drives-container');
+                    
+                    if (data.drives.length === 0) {
+                        drivesContainer.innerHTML = `
+                            <div class="no-drives-message">
+                                No USB drives detected. Please connect a drive to monitor its usage.
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    drivesContainer.innerHTML = data.drives
+                        .map(drive => createDriveElement(drive))
+                        .join('');
+                    
+                    // Check for warnings/critical status
+                    data.drives.forEach(drive => {
+                        if (drive.status === 'critical') {
+                            showNotification(`Critical: Drive "${drive.name}" is almost full!`, 'error');
+                        } else if (drive.status === 'warning') {
+                            showNotification(`Warning: Drive "${drive.name}" is running low on space`, 'warning');
+                        }
+                    });
+                });
+        }
+
+        function showNotification(message, type) {
+            // Implement based on your notification system
+            console.log(`${type}: ${message}`);
+        }
+
+        function openThresholdSettings() {
+            fetch('/api/disk-usage')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('warning-threshold').value = data.thresholds.warning;
+                    document.getElementById('critical-threshold').value = data.thresholds.critical;
+                    document.getElementById('threshold-modal').style.display = 'block';
+                });
+        }
+
+        function closeThresholdSettings() {
+            document.getElementById('threshold-modal').style.display = 'none';
+        }
+
+        function saveThresholds() {
+            const warning = parseInt(document.getElementById('warning-threshold').value);
+            const critical = parseInt(document.getElementById('critical-threshold').value);
+            
+            fetch('/api/disk-thresholds', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ warning, critical })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showNotification(data.error, 'error');
+                } else {
+                    closeThresholdSettings();
+                    updateDiskUsage();
+                    showNotification('Thresholds updated successfully', 'success');
+                }
+            });
+        }
+
+        async function refreshServices() {
+            const button = document.querySelector('.refresh-button');
+            // Disable button and show loading state
+            button.disabled = true;
+            button.innerHTML = '🔄 Refreshing...';
+            
+            try {
+                const response = await fetch('/api/refresh-services');
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Show success message
+                    const flashContainer = document.createElement('div');
+                    flashContainer.className = 'flash-messages';
+                    flashContainer.innerHTML = `
+                        <div class="flash-message">
+                            Services refresh initiated successfully. Note that this is an expensive operation so use it sparingly. You might have to refresh the web page to see the updated state.
+                        </div>
+                    `;
+                    document.querySelector('.container').insertBefore(
+                        flashContainer,
+                        document.querySelector('.breadcrumb')
+                    );
+                    
+                    // Remove message after 5 seconds
+                    setTimeout(() => {
+                        flashContainer.remove();
+                    }, 5000);
+                    
+                    // Reload page after a delay to show updated state
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 6000);
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                // Show error message
+                const flashContainer = document.createElement('div');
+                flashContainer.className = 'flash-messages';
+                flashContainer.innerHTML = `
+                    <div class="flash-message error">
+                        Failed to refresh services: ${error.message}
+                    </div>
+                `;
+                document.querySelector('.container').insertBefore(
+                    flashContainer,
+                    document.querySelector('.breadcrumb')
+                );
+            } finally {
+                // Reset button state after 3 seconds
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerHTML = '🔄 Refresh Services';
+                }, 3000);
+            }
+        }
+        
+
+        // Update disk usage every 5 minutes
+        updateDiskUsage();
+        setInterval(updateDiskUsage, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
