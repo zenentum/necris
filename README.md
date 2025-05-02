@@ -16,6 +16,8 @@ Necris NAS creates a seamless, hassle-free storage experience by transforming yo
 
 4. **Monitor and Manage** - The clean web interface lets you see all connected drives, their storage capacity, and usage at a glance. Upload, download, and organize files directly from your browser, and easily manage sharing settings.
 
+   ![Necris NAS Dashboard](./static/dashboard-ui.png?raw=true "Necris NAS Dashboard")
+
 5. **Worry-Free Operation** - The system monitors itself, automatically recovering from errors and alerting you when drives are getting full. Even after power outages or reboots, your drives automatically reconnect and resume sharing.
 
 ## Requirements
@@ -99,6 +101,8 @@ sudo systemctl enable necris-nas
    - Username: `necris-client`
    - Password: `necris-is-awesome`
 
+![Necris NAS File Manager](./static/login-ui.png?raw=true "Necris NAS File Manager")
+
 ### Connecting USB Drives
 
 1. Simply plug USB drives into your Raspberry Pi's USB ports
@@ -144,6 +148,33 @@ For security reasons, it's highly recommended to change the default password:
 4. Click "Change Password"
 
 **Note**: Changing the password will disconnect all active SMB sessions.
+
+## Pre-assembled Necris NAS Devices
+
+Don't want to set up your own Necris NAS? We offer pre-assembled, ready-to-use devices!
+
+![Pre-assembled Necris NAS Device](./static/product_image.png?raw=true "Pre-assembled Necris NAS Device")
+
+### Purchase a Ready-to-Use Device
+
+Skip the setup process and get a fully configured Necris NAS with these benefits:
+- Professional assembly with quality-tested components
+- Pre-installed and configured Necris NAS software
+- Optimized hardware selection for best performance
+- Premium case with proper ventilation
+- 1-year warranty on all hardware components
+
+**[Purchase a Pre-assembled Necris NAS](https://buy.stripe.com/8wMeYK87lg4F7PGfYZ)**
+
+### Getting Started with Your Pre-assembled Device
+
+Simply follow these steps:
+1. Connect the device to power and your home network (via Wi-Fi or Ethernet)
+2. Plug in your USB drives
+3. Access your Necris NAS through any web browser
+
+For detailed instructions and advanced configuration options, visit our comprehensive documentation at:
+[https://zenentum.com/docs](https://zenentum.com/docs)
 
 ## Security Considerations
 
