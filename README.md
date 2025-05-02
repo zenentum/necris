@@ -1,6 +1,7 @@
 # Necris NAS
 
-![Necris NAS Logo](./static/necris.png?raw=true "Necris NAS Logo")
+<img src="./static/necris.png" width="50%">
+
 
 Necris NAS transforms your Raspberry Pi into a powerful Network Attached Storage (NAS) server that makes USB drives accessible over your local network. Connect USB drives to your Raspberry Pi and instantly access them from any device on your home network - computers, tablets, phones, smart TVs, and more!
 
@@ -153,7 +154,7 @@ For security reasons, it's highly recommended to change the default password:
 
 Don't want to set up your own Necris NAS? We offer pre-assembled, ready-to-use devices!
 
-<img src="./static/image.png" width="50%">
+<img src="./static/product_image_necris.png" width="50%">
 
 ### Purchase a Ready-to-Use Device
 
